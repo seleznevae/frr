@@ -190,6 +190,9 @@ struct ospf {
 #define DEFAULT_ORIGINATE_ALWAYS	2
 	uint32_t ref_bandwidth;       /* Reference Bandwidth (Kbps). */
 	struct route_table *networks; /* OSPF config networks. */
+    /* SAE */
+    struct route_table *summaries; /* Configured summary address ranges for external-LSAs. */
+    /* SAE END */
 	struct list *vlinks;	  /* Configured Virtual-Links. */
 	struct list *areas;	   /* OSPF areas. */
 	struct route_table *nbr_nbma;

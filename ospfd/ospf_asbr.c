@@ -293,3 +293,14 @@ void ospf_redistribute_withdraw(struct ospf *ospf, uint8_t type,
 					rn->info = NULL;
 				}
 }
+
+
+/* SAE */
+int ospf_summary_address_set (struct ospf *ospf, struct prefix_ipv4 *p)
+{
+    (void)ospf;
+    (void)p;
+    return 0;
+}
+
+/* SAE END */

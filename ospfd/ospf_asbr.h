@@ -77,4 +77,9 @@ extern void ospf_asbr_route_install_lsa(struct ospf_lsa *);
 extern struct ospf_lsa *ospf_external_info_find_lsa(struct ospf *,
 						    struct prefix_ipv4 *p);
 
+
+/* SAE */
+extern int ospf_summary_address_set (struct ospf *ospf, struct prefix_ipv4 *p);
+/* SAE END */
+
 #endif /* _ZEBRA_OSPF_ASBR_H */

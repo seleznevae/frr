@@ -258,6 +258,9 @@ static struct ospf *ospf_new(unsigned short instance, const char *name)
 	new->areas = list_new();
 	new->areas->cmp = (int (*)(void *, void *))ospf_area_id_cmp;
 	new->networks = route_table_init();
+    /* SAE */
+    new->summaries = route_table_init();
+    /* SAE END */
 	new->nbr_nbma = route_table_init();
 
 	new->lsdb = ospf_lsdb_new();
@@ -686,6 +689,9 @@ static void ospf_finish_final(struct ospf *ospf)
 		}
 	}
 	route_table_finish(ospf->networks);
+    /* SAE */
+    route_table_finish(ospf->summaries);
+    /* SAE END */
 
 	for (ALL_LIST_ELEMENTS(ospf->areas, node, nnode, area)) {
 		listnode_delete(ospf->areas, area);

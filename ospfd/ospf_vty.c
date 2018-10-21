@@ -694,6 +694,25 @@ DEFUN (ospf_area_range,
 	return CMD_SUCCESS;
 }
 
+/* SAE */
+DEFUN (ospf_summary_address,
+       ospf_summary_address_cmd,
+       "summary-address A.B.C.D/M",
+       "Configure IP address summaries\n"
+       "IP summary prefix\n")
+{
+    VTY_DECLVAR_INSTANCE_CONTEXT(ospf, ospf);
+    int idx_ipv4_prefixlen = 1;
+    struct prefix_ipv4 p;
+
+    str2prefix_ipv4(argv[idx_ipv4_prefixlen]->arg, &p);
+
+    ospf_summary_address_set(ospf, &p);
+
+    return CMD_SUCCESS;
+}
+/* SAE END */
+
 DEFUN (ospf_area_range_cost,
        ospf_area_range_cost_cmd,
        "area <A.B.C.D|(0-4294967295)> range A.B.C.D/M cost (0-16777215)",
@@ -10737,6 +10756,9 @@ void ospf_vty_init(void)
 	install_element(OSPF_NODE, &no_ospf_area_range_cmd);
 	install_element(OSPF_NODE, &ospf_area_range_substitute_cmd);
 	install_element(OSPF_NODE, &no_ospf_area_range_substitute_cmd);
+
+    /* "summary-address" commands.  */
+    install_element(OSPF_NODE, &ospf_summary_address_cmd);
 
 	/* "area virtual-link" commands. */
 	install_element(OSPF_NODE, &ospf_area_vlink_cmd);
