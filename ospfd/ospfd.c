@@ -690,6 +690,15 @@ static void ospf_finish_final(struct ospf *ospf)
 	}
 	route_table_finish(ospf->networks);
     /* SAE */
+    for (rn = route_top(ospf->summaries); rn; rn = route_next(rn)) {
+        struct ospf_summary *summary;
+
+        if ((summary = rn->info) != NULL) {
+            ospf_summary_address_remove(ospf, summary);
+            rn->info = NULL;
+            route_unlock_node(rn);
+        }
+    }
     route_table_finish(ospf->summaries);
     /* SAE END */
 

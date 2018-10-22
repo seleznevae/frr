@@ -27,6 +27,14 @@ struct route_map_set_values {
 	int32_t metric_type;
 };
 
+struct ospf_summary {
+    /* Summary address. */
+    struct in_addr addr;
+
+    /* Summary masklen. */
+    uint8_t masklen;
+};
+
 /* Redistributed external information. */
 struct external_info {
 	/* Type of source protocol. */
@@ -80,6 +88,7 @@ extern struct ospf_lsa *ospf_external_info_find_lsa(struct ospf *,
 
 /* SAE */
 extern int ospf_summary_address_set (struct ospf *ospf, struct prefix_ipv4 *p);
+extern int ospf_summary_address_remove (struct ospf *ospf, struct ospf_summary *summary);
 /* SAE END */
 
 #endif /* _ZEBRA_OSPF_ASBR_H */

@@ -295,11 +295,75 @@ void ospf_redistribute_withdraw(struct ospf *ospf, uint8_t type,
 }
 
 
+static struct ospf_summary *ospf_summary_new (struct prefix_ipv4 *p)
+{
+    struct ospf_summary *ospf_summary;
+
+    ospf_summary = XCALLOC(MTYPE_OSPF_SUMMARY_ADDRESS/* ??? */, sizeof(struct ospf_summary));
+    ospf_summary->addr = p->prefix;
+    ospf_summary->masklen = p->prefixlen;
+
+    return ospf_summary;
+}
+
+static void ospf_summary_free(struct ospf_summary *summary)
+{
+    XFREE(MTYPE_OSPF_SUMMARY_ADDRESS/* ?? */, summary);
+}
+
+static struct ospf_summary *ospf_summary_lookup (struct ospf *ospf,
+                        struct prefix_ipv4 *p)
+{
+    struct route_node *rn;
+
+    rn = route_node_lookup (ospf->summaries, (struct prefix *)p);
+    if (rn) {
+      route_unlock_node(rn);
+      return rn->info;
+    }
+    return NULL;
+}
+
+
+static void
+ospf_summary_address_add (struct ospf *top, struct ospf_summary *summary)
+{
+    struct route_node *rn;
+    struct prefix_ipv4 p;
+
+    p.family = AF_INET;
+    p.prefixlen = summary->masklen;
+    p.prefix = summary->addr;
+    apply_mask_ipv4(&p);
+
+    rn = route_node_get(top->summaries, (struct prefix *)&p);
+    if (rn->info)
+        route_unlock_node(rn);
+    else
+        rn->info = summary;
+}
+
 /* SAE */
 int ospf_summary_address_set (struct ospf *ospf, struct prefix_ipv4 *p)
 {
+    struct ospf_summary *summary;
+    summary = ospf_summary_lookup(ospf, p);
+    if (summary) {
+        /* do something */
+        return 0;
+    }
+
+    summary = ospf_summary_new(p);
+    ospf_summary_address_add(ospf, summary);
+
+
+    return 0;
+}
+
+extern int ospf_summary_address_remove (struct ospf *ospf, struct ospf_summary *summary)
+{
     (void)ospf;
-    (void)p;
+    (void)summary;
     return 0;
 }
 

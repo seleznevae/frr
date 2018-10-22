@@ -10003,6 +10003,23 @@ static int config_write_network_area(struct vty *vty, struct ospf *ospf)
 	return 0;
 }
 
+static int config_write_summary_address(struct vty *vty, struct ospf *ospf)
+{
+    struct route_node *rn;
+
+    /* `summary-address' print. */
+    for (rn = route_top(ospf->summaries); rn; rn = route_next(rn))
+        if (rn->info) {
+            struct ospf_summary *s = rn->info;
+            (void)s;
+
+            vty_out(vty, " summary-address %s/%d\n",
+                inet_ntoa(rn->p.u.prefix4), rn->p.prefixlen);
+        }
+
+    return 0;
+}
+
 static int config_write_ospf_area(struct vty *vty, struct ospf *ospf)
 {
 	struct listnode *node;
@@ -10434,6 +10451,12 @@ static int ospf_config_write_one(struct vty *vty, struct ospf *ospf)
 
 	/* Network area print. */
 	config_write_network_area(vty, ospf);
+
+    /* SAE */
+    /* Summary address print. */
+    config_write_summary_address(vty, ospf);
+    /* SAE END */
+
 
 	/* Area config print. */
 	config_write_ospf_area(vty, ospf);
