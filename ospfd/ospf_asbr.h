@@ -33,6 +33,10 @@ struct ospf_summary {
 
     /* Summary masklen. */
     uint8_t masklen;
+
+    /* OSPF instance. */
+    struct ospf *top;
+    struct thread *t_update;
 };
 
 /* Redistributed external information. */

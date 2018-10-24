@@ -43,6 +43,8 @@
 #include "ospfd/ospf_zebra.h"
 #include "ospfd/ospf_dump.h"
 
+#define OSPF_SUMMARY_TIMER_DELAY        1
+
 
 /* Remove external route. */
 void ospf_external_route_remove(struct ospf *ospf, struct prefix_ipv4 *p)
@@ -344,6 +346,37 @@ ospf_summary_address_add (struct ospf *top, struct ospf_summary *summary)
 }
 
 /* SAE */
+
+int
+ospf_summary_address_timer (struct thread *thread)
+{
+  struct ospf_summary *summary = THREAD_ARG (thread);
+  struct ospf *top = summary->top;
+  struct ospf_area *area;
+  struct listnode *node;
+
+
+  if (IS_DEBUG_OSPF_EVENT)
+      zlog_info("Running Summary-address task on timer");
+
+
+  summary->t_update = NULL;
+
+  for (ALL_LIST_ELEMENTS_RO(ospf->areas, node, area)) {
+    //if (IS_AREA_ACTIVE (area)) { ??
+        if (area->external_routing == OSPF_AREA_NSSA)
+            ospf_summary_address_update (summary, area->redist_table,
+                                       OSPF_AS_NSSA_LSA, area);
+        else
+             ospf_summary_address_update (summary, top->redist_table,
+                                       OSPF_AS_EXTERNAL_LSA, top);
+     //}
+  }
+
+
+  return 0;
+}
+
 int ospf_summary_address_set (struct ospf *ospf, struct prefix_ipv4 *p)
 {
     struct ospf_summary *summary;
@@ -356,6 +389,9 @@ int ospf_summary_address_set (struct ospf *ospf, struct prefix_ipv4 *p)
     summary = ospf_summary_new(p);
     ospf_summary_address_add(ospf, summary);
 
+    summary->top = top;
+    OSPF_TIMER_ON (summary->t_update, ospf_summary_address_timer,
+                   summary, OSPF_SUMMARY_TIMER_DELAY);
 
     return 0;
 }
